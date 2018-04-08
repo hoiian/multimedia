@@ -119,16 +119,16 @@ title('Pitch');
 xlabel('time(s)');
 
 %---------------------end point---------%
-frameSize = 256;
-overlap = 128;
+frameSize = 882;
+overlap = 441;
 y=y-mean(y);				% zero-mean substraction
 %frameMat=buffer2(y, frameSize, overlap);	% frame blocking
 %frameNum=size(frameMat, 2);			% no. of frames
 frameNum = floor((length(y)-1)/window_length)+1;
 
-volume=energy;		% volume
+volume=energy;	
 % volumeTh1=max(volume)*0.1;			% volume threshold 1
-volumeTh1=1;
+volumeTh1=20;
 volumeTh2=median(volume)*0.1;			% volume threshold 2
 volumeTh3=min(volume)*10;			% volume threshold 3
 volumeTh4=volume(1)*5;				% volume threshold 4
@@ -138,6 +138,7 @@ index3 = find(volume>volumeTh3);
 index4 = find(volume>volumeTh4);
 
 %sampleIndex=(frameIndex-1)*(frameSize-overlap)+round(frameSize/2);
+
 endPoint1=([index1(1),index1(end)]-1)*(frameSize-overlap)+round(frameSize/2);
 endPoint2=([index2(1),index2(end)]-1)*(frameSize-overlap)+round(frameSize/2);
 endPoint3=([index3(1),index3(end)]-1)*(frameSize-overlap)+round(frameSize/2);
@@ -154,12 +155,12 @@ plot(time, y);
 xlabel('time(s)'); 
 title('End point Detection');
 axis([-inf inf -1 1]);
-line(time(endPoint1(  1))*[1 1], [-1, 1], 'color', 'm');
-line(time(endPoint2(  1))*[1 1], [-1, 1], 'color', 'g');
-line(time(endPoint3(  1))*[1 1], [-1, 1], 'color', 'k');
+% line(time(endPoint1(  1))*[1 1], [-1, 1], 'color', 'm');
+% line(time(endPoint2(  1))*[1 1], [-1, 1], 'color', 'g');
+% line(time(endPoint3(  1))*[1 1], [-1, 1], 'color', 'k');
 line(time(endPoint4(  1))*[1 1], [-1, 1], 'color', 'r');
-line(time(endPoint1(end))*[1 1], [-1, 1], 'color', 'm');
-line(time(endPoint2(end))*[1 1], [-1, 1], 'color', 'g');
-line(time(endPoint3(end))*[1 1], [-1, 1], 'color', 'k');
+% line(time(endPoint1(end))*[1 1], [-1, 1], 'color', 'm');
+% line(time(endPoint2(end))*[1 1], [-1, 1], 'color', 'g');
+% line(time(endPoint3(end))*[1 1], [-1, 1], 'color', 'k');
 line(time(endPoint4(end))*[1 1], [-1, 1], 'color', 'r');
 % legend('Waveform', 'Boundaries by threshold 1', 'Boundaries by threshold 2', 'Boundaries by threshold 3', 'Boundaries by threshold 4');
