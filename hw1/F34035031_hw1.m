@@ -46,10 +46,9 @@ plot(tt,energy);
 title('Energy');
 xlabel('time(s)');
 
-
 %------zero crossing rate--------%
 sum2=0;
-energy=0;
+% energy=0;
 w=rectwin(window_length); %rectangle window function
 jj=1;
 
@@ -75,108 +74,16 @@ plot(tt,zerocrossing);
 title('Zero Crossing Rate');
 xlabel('time(s)');
 
-%------------------autocorrelation-------
-% frame_size=140/1000; %??ms
-% window_length=frame_size*fs;
-% 
-% y=y(1:window_length);
-% sum3=0;
-% % autoacorr=0;
-% for k=0:(length(y)-1)
-%     sum3=0;
-%     for u=1:(length(y)-k)
-%         s=y(u)*y(u+k);
-%         sum3=sum3+s;
-%     end
-%     autocor(k+1)=sum3;
-% end
-% 
-% tt=(1/fs:1/fs:(length(autocor)/fs))*1000;
-% subplot(6,1,4);
-% plot(tt,autocor);
-% title('Autocorrelation on frame size 140.');
-% xlabel('frame number');
 
-%..................................
-% frame_size=20/1000;
-% frame_shift=10/1000;
-% y=y/max(abs(y));
-% 
-% window_length=frame_size*fs;
-% sample_shift = frame_shift*fs;
-% sum4=0;
-% autocorrelation=0;
-% autocor1=0;
-% 
-% for i=1:(floor((length(y))/sample_shift)-ceil(window_length/sample_shift))
-%     k=1;
-%     yy=0;
-%     for j=(((i-1)*sample_shift)+1):(((i-1)*sample_shift)+window_length)
-%         yy(k)=y(j);
-%         k=k+1;
-%     end
-%     for l=0:(length(yy)-1)
-%         sum4=0;
-%         for u=1:(length(yy)-l)
-%             s=yy(u)*yy(u+l);
-%             sum4=sum4+s;
-%         end
-%         autocor1(l+1)=sum4;
-%         autocorrelation(l+1,i)=autocor1(l+1);
-%     end
-% end
-% 
-% [rows,cols]=size(autocorrelation);
-% tt=1/fs:1/fs:(length(y)/fs);
-% kk=(1/fs:1/fs:(rows/fs))*1000;
-% k1=(1/fs:1/fs:(length(autocor1)/fs))*1000;
-% % kkk=(1/fs:frame_shift:(cols*frame_shift));
-% subplot(6,1,5);
-% % plot(kk,autocorrelation);
-% plot(k1,autocor1);
           
-%-----pitch---------
+%--------------------pitch---------%
 sum4=0;
-energy=0;
+% energy=0;
 autocorrelation=0;
-[y,fs]=audioread(filename);
-y=y/max(abs(y));
+% [y,fs]=audioread(filename);
+% y=y/max(abs(y));
 pitch_freq=0;
-% 
-% for i=1:(floor((length(y))/sample_shift)-ceil(window_length/sample_shift))
-%     k=1;
-%     yy=0;
-%     for j=(((i-1)*sample_shift)+1:(((i-1)*sample_shift)+window_length))
-%         yy(k)=y(j);
-%         k=k+1;
-%     end
-%     for l=0:(length(yy)-1)
-%          sum4=0;
-%          for u=1:(length(yy)-l)
-%              s=yy(u)*yy(u+l);
-%              sum4=sum4+s;
-%          end
-%          autocor(l+1)=sum4;
-%          autocorrelation(l+1,i)=autocor(l+1);
-%     end
-%     auto=autocor(21:160);
-%     max1=0;
-%     for uu=1:140
-%         if(auto(uu)>max1)
-%             max1=auto(uu);
-%             sample_no=uu;
-%         end
-%     end
-%     pitch_freq(i)=1/((20+sample_no)*(1/fs));
-% end
-% [rows,cols]=size(autocorrelation);
-% kkk=1/fs:frame_shift:(cols*frame_shift);
-% subplot(6,1,5);
-% plot(kkk,pitch_freq);
-% title('Pitch');
-% xlabel('time(s)');
 
-sum1=0;
 
 for i=1:(floor((length(y))/sample_shift)-ceil(window_length/sample_shift))
   k=1;yy=0;
@@ -211,8 +118,48 @@ axis([0,4,0,500]);
 title('Pitch');
 xlabel('time(s)');
 
-%------------end point---------
-% opt=endPointDetect('defaultOpt');
-% opt.method='volHod';
-% showPlot=1;
-% endPoint=endPointDetect(au, opt, showPlot);
+%---------------------end point---------%
+frameSize = 256;
+overlap = 128;
+y=y-mean(y);				% zero-mean substraction
+%frameMat=buffer2(y, frameSize, overlap);	% frame blocking
+%frameNum=size(frameMat, 2);			% no. of frames
+frameNum = floor((length(y)-1)/window_length)+1;
+
+volume=energy;		% volume
+% volumeTh1=max(volume)*0.1;			% volume threshold 1
+volumeTh1=1;
+volumeTh2=median(volume)*0.1;			% volume threshold 2
+volumeTh3=min(volume)*10;			% volume threshold 3
+volumeTh4=volume(1)*5;				% volume threshold 4
+index1 = find(volume>volumeTh1);
+index2 = find(volume>volumeTh2);
+index3 = find(volume>volumeTh3);
+index4 = find(volume>volumeTh4);
+
+%sampleIndex=(frameIndex-1)*(frameSize-overlap)+round(frameSize/2);
+endPoint1=([index1(1),index1(end)]-1)*(frameSize-overlap)+round(frameSize/2);
+endPoint2=([index2(1),index2(end)]-1)*(frameSize-overlap)+round(frameSize/2);
+endPoint3=([index3(1),index3(end)]-1)*(frameSize-overlap)+round(frameSize/2);
+endPoint4=([index4(1),index4(end)]-1)*(frameSize-overlap)+round(frameSize/2);
+
+% endPoint1=frame2sampleIndex([index1(1), index1(end)], frameSize, overlap);
+% endPoint2=frame2sampleIndex([index2(1), index2(end)], frameSize, overlap);
+% endPoint3=frame2sampleIndex([index3(1), index3(end)], frameSize, overlap);
+% endPoint4=frame2sampleIndex([index4(1), index4(end)], frameSize, overlap);
+
+subplot(5,1,4);
+time=(1:length(y))/fs;
+plot(time, y);
+xlabel('time(s)'); 
+title('End point Detection');
+axis([-inf inf -1 1]);
+line(time(endPoint1(  1))*[1 1], [-1, 1], 'color', 'm');
+line(time(endPoint2(  1))*[1 1], [-1, 1], 'color', 'g');
+line(time(endPoint3(  1))*[1 1], [-1, 1], 'color', 'k');
+line(time(endPoint4(  1))*[1 1], [-1, 1], 'color', 'r');
+line(time(endPoint1(end))*[1 1], [-1, 1], 'color', 'm');
+line(time(endPoint2(end))*[1 1], [-1, 1], 'color', 'g');
+line(time(endPoint3(end))*[1 1], [-1, 1], 'color', 'k');
+line(time(endPoint4(end))*[1 1], [-1, 1], 'color', 'r');
+% legend('Waveform', 'Boundaries by threshold 1', 'Boundaries by threshold 2', 'Boundaries by threshold 3', 'Boundaries by threshold 4');
