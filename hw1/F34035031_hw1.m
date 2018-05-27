@@ -32,7 +32,6 @@ for i=1:(floor((length(y))/sample_shift)-ceil(window_length/sample_shift))
     sum1=0;
     jj=1;
 end
-w=0;
 
 tt=(1/fs:(length(energy)))/100;
 subplot(5,1,2);
@@ -42,7 +41,6 @@ xlabel('time(s)');
 
 %------zero crossing rate--------%
 sum2=0;
-w=rectwin(window_length); %rectangle window function
 jj=1;
 
 for i=1:(floor((length(y))/sample_shift)-ceil(window_length/sample_shift))
@@ -67,13 +65,11 @@ plot(tt,zerocrossing);
 title('Zero Crossing Rate');
 xlabel('time(s)');
 
-
           
 %--------------------pitch---------%
 sum4=0;
 autocorrelation=0;
 pitch_freq=0;
-
 
 for i=1:(floor((length(y))/sample_shift)-ceil(window_length/sample_shift))
   k=1;yy=0;
@@ -108,29 +104,19 @@ axis([0,4,0,500]);
 title('Pitch');
 xlabel('time(s)');
 
-%---------------------end point---------%
+%-----------------end point---------%
 frameSize = 882;
 overlap = 441;
 y=y-mean(y);				% zero-mean substraction
 frameNum = floor((length(y)-1)/window_length)+1;
 
-volume=energy;	
-volumeTh1=max(volume)*0.1;			% volume threshold 1
-% volumeTh1=20;
-volumeTh2=median(volume)*0.1;			% volume threshold 2
-volumeTh3=min(volume)*10;			% volume threshold 3
-volumeTh4=volume(1)*5;				% volume threshold 4
-index1 = find(volume>volumeTh1);
-index2 = find(volume>volumeTh2);
-index3 = find(volume>volumeTh3);
-index4 = find(volume>volumeTh4);
-
+volume=energy;      
+volumeTh=volume(1)*5;       
+index = find(volume>volumeTh);
+ 
 %sampleIndex=(frameIndex-1)*(frameSize-overlap)+round(frameSize/2);
-
-endPoint1=([index1(1),index1(end)]-1)*(frameSize-overlap)+round(frameSize/2);
-endPoint2=([index2(1),index2(end)]-1)*(frameSize-overlap)+round(frameSize/2);
-endPoint3=([index3(1),index3(end)]-1)*(frameSize-overlap)+round(frameSize/2);
-endPoint4=([index4(1),index4(end)]-1)*(frameSize-overlap)+round(frameSize/2);
+ 
+endPoint=([index(1),index(end)]-1)*(frameSize-overlap)+round(frameSize/2);
 
 subplot(5,1,4);
 time=(1:length(y))/fs;
@@ -138,11 +124,5 @@ plot(time, y);
 xlabel('time(s)'); 
 title('End point Detection');
 axis([-inf inf -1 1]);
-% line(time(endPoint1(  1))*[1 1], [-1, 1], 'color', 'm');
-% line(time(endPoint2(  1))*[1 1], [-1, 1], 'color', 'g');
-% line(time(endPoint3(  1))*[1 1], [-1, 1], 'color', 'k');
-line(time(endPoint4(  1))*[1 1], [-1, 1], 'color', 'r');
-% line(time(endPoint1(end))*[1 1], [-1, 1], 'color', 'm');
-% line(time(endPoint2(end))*[1 1], [-1, 1], 'color', 'g');
-% line(time(endPoint3(end))*[1 1], [-1, 1], 'color', 'k');
-line(time(endPoint4(end))*[1 1], [-1, 1], 'color', 'r');
+line(time(endPoint(  1))*[1 1], [-1, 1], 'color', 'r');
+line(time(endPoint(end))*[1 1], [-1, 1], 'color', 'r');
